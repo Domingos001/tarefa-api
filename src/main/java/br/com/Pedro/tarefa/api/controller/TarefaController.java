@@ -1,13 +1,12 @@
 package br.com.Pedro.tarefa.api.controller;
 
-// Imports necessários para a classe funcionar (aqui estava o erro!)
 import br.com.Pedro.tarefa.api.model.Tarefa;
 import br.com.Pedro.tarefa.api.repository.TarefaRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List; // <--- ESTA LINHA ESTAVA FALTANDO!
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tarefas")
@@ -52,13 +51,18 @@ public class TarefaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        return repository.findById(id)
-                .map(tarefa -> {
-                    repository.deleteById(id);
-                    return ResponseEntity.noContent().build();
-                })
-                .orElse(ResponseEntity.notFound().build());
+        // Primeiro, verificamos se a tarefa realmente existe
+        if (repository.existsById(id)) {
+            // Se existir, nós a deletamos
+            repository.deleteById(id);
+            // E retornamos o status 204 No Content (sucesso, sem conteúdo)
+            return ResponseEntity.noContent().build();
+        } else {
+            // Se não existir, retornamos o status 404 Not Found
+            return ResponseEntity.notFound().build();
+        }
     }
 }
